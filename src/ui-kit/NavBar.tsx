@@ -74,8 +74,25 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const isMenuActive = (path: string) => {
-  return path.includes("/fees");
+const isProductActive = (path: string) => {
+  return path.includes("/product");
+};
+
+
+const isTransactionActive = (path: string) => {
+  return path.includes("/transaction");
+};
+
+const isOrderActive = (path: string) => {
+  return path.includes("/order");
+};
+
+const isHistoryActive = (path: string) => {
+  return path.includes("/history");
+};
+
+const isUserManagementActive = (path: string) => {
+  return path.includes("/user-management");
 };
 
 export default function NavBar() {
@@ -109,9 +126,12 @@ export default function NavBar() {
         <Menus>
           <List className={classes.root}>
             <ListItem
-              onClick={toggleMenu1}
+           onClick={(e) => {
+            e.stopPropagation();
+            navigate("/product");
+          }}
               className={
-                isMenuActive(location.pathname)
+                isProductActive(location.pathname)
                   ? classes.active
                   : classes.inActive
               }
@@ -124,9 +144,12 @@ export default function NavBar() {
             </ListItem>
             <MenuDivider />
             <ListItem
-              onClick={toggleMenu2}
+               onClick={(e) => {
+                e.stopPropagation();
+                navigate("/transaction");
+              }}
               className={
-                isMenuActive(location.pathname)
+                isTransactionActive(location.pathname)
                   ? classes.active
                   : classes.inActive
               }
@@ -135,9 +158,12 @@ export default function NavBar() {
             </ListItem>
             <MenuDivider />
             <ListItem
-              onClick={toggleMenu2}
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate("/order");
+          }}
               className={
-                isMenuActive(location.pathname)
+                isOrderActive(location.pathname)
                   ? classes.active
                   : classes.inActive
               }
@@ -146,9 +172,12 @@ export default function NavBar() {
             </ListItem>
             <MenuDivider />
             <ListItem
-              onClick={toggleMenu2}
+       onClick={(e) => {
+        e.stopPropagation();
+        navigate("/history");
+      }}
               className={
-                isMenuActive(location.pathname)
+                isHistoryActive(location.pathname)
                   ? classes.active
                   : classes.inActive
               }
@@ -157,9 +186,12 @@ export default function NavBar() {
             </ListItem>
             <MenuDivider />
             <ListItem
-              onClick={toggleMenu2}
+               onClick={(e) => {
+                e.stopPropagation();
+                navigate("/user-management");
+              }}
               className={
-                isMenuActive(location.pathname)
+                isUserManagementActive(location.pathname)
                   ? classes.active
                   : classes.inActive
               }
