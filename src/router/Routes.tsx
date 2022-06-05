@@ -15,15 +15,17 @@ import TransactionPage from "../sg-pages/transaction/TransactionPage";
 import { ThemeProvider } from "@emotion/react";
 import { theme } from "../theme";
 import { GlobalStyle } from "../global";
+import CssBaseline from '@mui/material/CssBaseline';
 
 export default function Routes() {
   return (
     <ThemeProvider theme={theme}>
+         <CssBaseline />
       <GlobalStyle />
       <BrowserRouter>
         <RoutesWrapper>
         <Route element={<MenuLayout />}>
-          <Route path="/" element={<div>fdsf</div>} />
+          <Route path="/" element={<div></div>} />
           <Route path="/product" element={<ProductPage/>} />
           <Route path="/order" element={<OrderPage />} />
           <Route path="/transaction" element={<TransactionPage/>} />
