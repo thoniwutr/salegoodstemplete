@@ -23,7 +23,7 @@ const Content = styled.div`
 export default function InfoItem(props: Props) {
   return (
     <Wrapper>
-      <Text family="Assistant" size="1" color="#888888">
+      <Text family="Assistant" size={1} color="#888888">
         {props.title}
       </Text>
       <Content>{props.detail}</Content>

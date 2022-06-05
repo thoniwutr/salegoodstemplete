@@ -3,7 +3,7 @@ import styled from 'styled-components'
 
 type Props = {
   as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'label'
-  size?: string
+  size?: number
   // Better fixed color for this system
   color?: string
   family?: 'LexendDeca' | 'Assistant' | 'IBMPlex' | undefined

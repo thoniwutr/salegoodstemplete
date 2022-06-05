@@ -64,7 +64,7 @@ export default function AddProductModal(props: Props) {
           }}
         >
           <Text
-            size="1.25"
+            size={1.25}
             family="LexendDeca"
             align="center"
             color="#363636"

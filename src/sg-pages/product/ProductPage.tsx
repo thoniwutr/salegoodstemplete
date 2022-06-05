@@ -51,7 +51,7 @@ export default function ProductPage() {
   return (
     <Wrapper>
       <TitleWrapper>
-        <Text size="1.5" weight={500} family="LexendDeca">
+        <Text size={1.5} weight={500} family="LexendDeca">
           Product
         </Text>
         <IconButton

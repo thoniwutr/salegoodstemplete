@@ -7,6 +7,7 @@ import {
 
 import NavBar from "../ui-kit/NavBar";
 import MenuLayout from '../ui-kit/MenuLayout'
+import FacebookLoginPage from '../auth/FacebookLoginPage'
 import ProductPage from "../sg-pages/product/ProductPage";
 import OrderPage from "../sg-pages/order/OrderPage";
 import HistoryPage from "../sg-pages/history/HistoryPage";
@@ -24,6 +25,7 @@ export default function Routes() {
       <GlobalStyle />
       <BrowserRouter>
         <RoutesWrapper>
+        <Route path="/login" element={<FacebookLoginPage/>} />
         <Route element={<MenuLayout />}>
           <Route path="/" element={<div></div>} />
           <Route path="/product" element={<ProductPage/>} />
