@@ -1,20 +1,23 @@
-import styled from 'styled-components/'
+import React from 'react'
+import styled from "styled-components/";
 
-import Text from '../ui-kit/Text'
-import FacebookIcon from '@mui/icons-material/Facebook';
-import ryanLogo from '../images/logo.png'
-import { Divider } from '@mui/material'
-import { makeStyles } from '@mui/styles'
+import Text from "../ui-kit/Text";
+import FacebookIcon from "@mui/icons-material/Facebook";
+import ryanLogo from "../images/logo.png";
+import { Divider } from "@mui/material";
+import { makeStyles } from "@mui/styles";
 
-import { useNavigate} from "react-router";
+import { useNavigate } from "react-router";
 import { FacebookAuthProvider } from "firebase/auth";
-import { loginWithFacebook, logoutUser } from '../firebase/services/auth'
+import { loginWithFacebook, logoutUser } from "../firebase/services/auth";
+
+import { useAuth } from '../sg-context/AuthContext'
 
 const Wrapper = styled.div`
   min-height: 100vh;
   background-color: #fff;
   width: 100%;
-`
+`;
 
 const LoadingWrapper = styled.div`
   position: absolute;
@@ -22,7 +25,7 @@ const LoadingWrapper = styled.div`
   min-height: 100vh;
   background-color: #fff;
   width: 100%;
-`
+`;
 
 const SignInWrapper = styled.div`
   min-height: 100vh;
@@ -32,7 +35,7 @@ const SignInWrapper = styled.div`
   display: grid;
   place-content: center;
   text-align: center;
-`
+`;
 
 const Card = styled.div`
   position: absolute;
@@ -48,11 +51,11 @@ const Card = styled.div`
   align-items: center;
   text-align: center;
   flex-direction: column;
-`
+`;
 
 const LogoWrapper = styled.div`
   padding: 20px;
-`
+`;
 
 const ButtonWrapper = styled.div`
   text-decoration: none;
@@ -67,7 +70,7 @@ const ButtonWrapper = styled.div`
   &:hover {
     cursor: pointer;
   }
-`
+`;
 
 const GoogleSignInIconWrapper = styled.div`
   background-color: #4285f4;
@@ -76,7 +79,7 @@ const GoogleSignInIconWrapper = styled.div`
   display: flex;
   align-items: center;
   text-align: center;
-`
+`;
 
 const GoogleTextWrapper = styled.div`
   color: white;
@@ -90,26 +93,33 @@ const GoogleTextWrapper = styled.div`
   font-family: LexendDeca;
   font-weight: 500;
   font-size: 14px;
-`
+`;
 
 const useStyles = makeStyles((theme) => ({
   divider: {
-    background: '#fff',
+    background: "#fff",
   },
-}))
+}));
 
 export default function FacebookLoginPage() {
   const navigate = useNavigate();
+  const { currentUser, login } = useAuth()
+  const classes = useStyles();
 
-    const classes = useStyles()
+  const responseFacebook = (response) => {
+    console.log(response);
+  };
 
-    const responseFacebook = (response) => {
-      console.log(response);
+  const componentClicked = () => {
+    console.log("click");
+  };
+
+  
+  React.useEffect(() => {
+    if (currentUser) {
+      navigate('/product')
     }
-
-    const componentClicked = () => {
-      console.log('click')
-  }
+  }, [currentUser])
 
   return (
     <Wrapper>
@@ -125,61 +135,51 @@ export default function FacebookLoginPage() {
             color="#4b4b4b"
             padding="0px"
           >
-            Salegood Login
+            Salegoodlive Login
           </Text>
           <ButtonWrapper
-          onClick={(e)=>{
-            e.preventDefault(); 
-            console.log('fdsf')
-            logoutUser().then(() => {
-              console.log('success')
-            }).catch((error) => {
-              console.log(error)
-            });
-          }}
-          >
-              Logout
-                </ButtonWrapper>
+            onClick={(e) => {
+              e.preventDefault();
+              login()
+                .then((result) => {
+                  // The signed-in user info.
+                  const user = result.user;
+                  console.log(user);
+                  // This gives you a Facebook Access Token. You can use it to access the Facebook API.
+                  const credential =
+                    FacebookAuthProvider.credentialFromResult(result);
+                  console.log(credential);
+                  //redireact 
+                  navigate('/product')
+                })
+                .catch((error) => {
+                  console.log(error);
 
-          <ButtonWrapper
-          onClick={(e)=>{
-            e.preventDefault(); 
-            loginWithFacebook().then((result) => {
-              // The signed-in user info.
-              const user = result.user;
-              console.log(result)
-              // This gives you a Facebook Access Token. You can use it to access the Facebook API.
-              const credential = FacebookAuthProvider.credentialFromResult(result);
-          
-              // ...
-            })
-            .catch((error) => {
-              console.log(error)
-              
-              // Handle Errors here.
-              const errorCode = error.code;
-              const errorMessage = error.message;
-              // The email of the user's account used.
-              const email = error.customData.email;
-              // The AuthCredential type that was used.
-              const credential = FacebookAuthProvider.credentialFromError(error);
-          
-              // ...
-            });
-          }}
+                  // Handle Errors here.
+                  const errorCode = error.code;
+                  const errorMessage = error.message;
+                  // The email of the user's account used.
+                  const email = error.customData.email;
+                  // The AuthCredential type that was used.
+                  const credential =
+                    FacebookAuthProvider.credentialFromError(error);
+
+                  // ...
+                });
+            }}
           >
-                  <GoogleSignInIconWrapper>
-                    <FacebookIcon sx={{ m: 1, color: '#fff' }} />
-                  </GoogleSignInIconWrapper>
-                  <Divider
-                    orientation="vertical"
-                    flexItem
-                    classes={{ root: classes.divider }}
-                  />
-                  <GoogleTextWrapper>Facebook Login</GoogleTextWrapper>
-                </ButtonWrapper>
+            <GoogleSignInIconWrapper>
+              <FacebookIcon sx={{ m: 1, color: "#fff" }} />
+            </GoogleSignInIconWrapper>
+            <Divider
+              orientation="vertical"
+              flexItem
+              classes={{ root: classes.divider }}
+            />
+            <GoogleTextWrapper>Facebook Login</GoogleTextWrapper>
+          </ButtonWrapper>
         </Card>
       </SignInWrapper>
     </Wrapper>
-  )
+  );
 }

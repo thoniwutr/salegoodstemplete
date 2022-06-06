@@ -25,7 +25,7 @@ export default function Routes() {
       <GlobalStyle />
       <BrowserRouter>
         <RoutesWrapper>
-        <Route path="/login" element={<FacebookLoginPage/>} />
+        <Route path="/" element={<FacebookLoginPage/>} />
         <Route element={<MenuLayout />}>
           <Route path="/" element={<div></div>} />
           <Route path="/product" element={<ProductPage/>} />
