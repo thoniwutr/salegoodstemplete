@@ -21,7 +21,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 export default function Routes() {
   return (
     <ThemeProvider theme={theme}>
-         <CssBaseline />
+      <CssBaseline />
       <GlobalStyle />
       <BrowserRouter>
         <RoutesWrapper>

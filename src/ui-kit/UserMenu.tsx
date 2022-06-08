@@ -14,6 +14,17 @@ const Button = styled.div`
   cursor: pointer;
 `
 
+
+const RowWrapper = styled.div`
+  background-color: white;
+  width: 100%;
+  justify-content: space-between;
+  vertical-align: middle;
+  flex-direction: column;
+  display: flex;
+`
+
+
 const PopoverContent = styled.div`
   width: 200px;
   max-height: 500px;
@@ -65,15 +76,26 @@ export default function UserMenu() {
   return (
     <div>
       <Button aria-describedby={id} onClick={handleClick}>
-        <img src={headerIcon} alt="Header Icon" width="29" height="29" />
+        <img src={headerIcon} alt="Header Icon" width="40" height="40" />
+        <RowWrapper>
         <Text
           size={1}
           weight={400}
           family="LexendDeca"
           padding="0px 10px 0px 10px"
         >
-          {currentUser?.email}
+          {currentUser?.displayName}
         </Text>
+        <Text
+          size={1}
+          weight={400}
+          family="LexendDeca"
+          padding="0px 10px 0px 10px"
+        >
+          {currentUser?.providerData[0].uid}
+        </Text>
+        </RowWrapper>
+    
       </Button>
       <Popover
         id={id}

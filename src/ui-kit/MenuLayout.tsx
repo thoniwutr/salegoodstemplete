@@ -13,7 +13,7 @@ const ContentWrapper = styled.div`
   height: 100%;
   width: 100%;
   display: flex;
-  padding: 35px;
+  padding: 60px 0 0px 60px;
 `
 
 export default function MenuLayout() {
