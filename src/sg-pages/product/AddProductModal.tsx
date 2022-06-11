@@ -15,6 +15,7 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import Dropdown from "../../ui-kit/Dropdown";
 import { BlueButton } from "../../ui-kit/Button";
 import { useFormik } from "formik";
+import * as Yup from 'yup'
 import { RemoveScroll } from "react-remove-scroll";
 import Swal from "sweetalert2";
 
@@ -25,8 +26,12 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import styles from "./UploadImage.module.css";
 
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { storage } from "../../firebase/firebase-config";
-import { addProduct } from "../../firebase/services/auth";
+import { storage, firestore } from "../../firebase/firebase-config";
+
+import { v4 as uuidv4 } from 'uuid';
+
+import { collection, addDoc, getDocs } from "firebase/firestore"; 
+
 
 
 const Wrapper = styled.form`
@@ -46,15 +51,16 @@ const MappingWrapper = styled.div`
   display: flex;
 `;
 type Props = {
+  onSuccess: () => Promise<void>
   onClose: () => void;
 };
 
 export default function AddProductModal(props: Props) {
   const [loading, setLoading] = React.useState<boolean>(false);
-  const [imgURL, setImgURL] = React.useState("http://i.pravatar.cc/500?img=7");
+  const [imgURL, setImgURL] = React.useState("https://www.kindpng.com/picc/m/285-2855863_a-festival-celebrating-tractors-round-profile-picture-placeholder.png");
 
-  const handleAddProduct = (value: {
-    productId: string;
+  const handleAddProduct = async (value: {
+    id: string;
     productName: string;
     productDetail: string;
     quantity: number;
@@ -64,7 +70,16 @@ export default function AddProductModal(props: Props) {
     available: boolean;
   }) => {
     console.log(value);
-    addProduct(value)
+ 
+    try {
+      const docRef = await addDoc(collection(firestore, "Products"), value);
+      props.onSuccess()
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    } finally {
+      props.onClose()
+    }
+
   };
 
   const handleUploadImage = (e) => {
@@ -101,7 +116,7 @@ export default function AddProductModal(props: Props) {
   const { values, setFieldValue, handleSubmit, errors, handleChange } =
     useFormik<ProductPayload>({
       initialValues: {
-        productId: "",
+        id: uuidv4(),
         productName: "",
         productDetail: "",
         quantity: 0,

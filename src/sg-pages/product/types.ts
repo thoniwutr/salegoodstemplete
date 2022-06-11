@@ -1,5 +1,5 @@
 export interface ProductPayload {
-    productId: string
+  id: string
     productName: string
     productDetail: string
     quantity: number
