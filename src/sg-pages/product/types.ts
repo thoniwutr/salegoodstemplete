@@ -4,8 +4,10 @@ export interface ProductPayload {
     productDetail: string
     quantity: number
     wordingOrder: string
-    price: string
+    price: number
     imgURL : string
-    available: boolean
+    available: 'available' | 'unavailable'
+    facebookId : string
+    createdDate : string
   }
   

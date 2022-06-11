@@ -3,7 +3,7 @@ import styled from 'styled-components/macro'
 type Props = {
   inputColor?: string
   borderless?: boolean
-  error: boolean
+  error?: string
   align?: 'left' | 'right' | 'center'
   padding?: string
   width?: string

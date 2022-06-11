@@ -1,18 +1,20 @@
 import React from "react";
 import styled from "styled-components";
 import Text from "../../ui-kit/Text";
+import AddProductModal from "./AddProductModal";
+import { firestore } from "../../firebase/firebase-config";
+import { renderGrayText } from "../../ui-kit/Text";
+import { Dot } from "../../ui-kit/Dot";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { Snackbar, Alert, Box } from "@mui/material";
-
-import { ProductPayload } from "../product/types";
-
 import IconButton from "@mui/material/IconButton";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
-import AddProductModal from "./AddProductModal";
-import { collection, getDocs } from "firebase/firestore";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { firestore } from "../../firebase/firebase-config";
-import { renderBlackText, renderGrayText } from "../../ui-kit/Text";
-import { constants } from "buffer";
+
+import Swal from 'sweetalert2'
+import { collection, deleteDoc, getDocs, query, where, doc } from "firebase/firestore"; 
+
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -22,12 +24,11 @@ const Wrapper = styled.div`
   padding: 0px 50px 50px 0px;
 `;
 
-
 const FullNameWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-`
+`;
 
 const LogoWrapper = styled.div<{ bgImg?: string }>`
   width: 34px;
@@ -36,8 +37,7 @@ const LogoWrapper = styled.div<{ bgImg?: string }>`
   background-color: #d6deff;
   background-image: url(${({ bgImg }) => bgImg});
   background-size: cover;
-`
-
+`;
 
 const DataGridWrapper = styled.div`
   background-color: #fff;
@@ -56,14 +56,15 @@ const TitleWrapper = styled.div`
 `;
 
 export default function ProductPage() {
-  const [productDisplay, setProductDisplay] = React.useState<any[]>([])
-
+  const [productDisplay, setProductDisplay] = React.useState<any[]>([]);
+  const [product, setProduct] = React.useState<any>(undefined);
+  const [action, setAction] = React.useState("add");
   const [pageSize, setPageSize] = React.useState(30);
   const [loading, setLoading] = React.useState(true);
   const [snackbarVisible, setSnackbarVisible] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState("");
-
   const [addProductVisible, setAddProductVisible] = React.useState(false);
+
 
   function productColumn(): GridColDef[] {
     return [
@@ -85,7 +86,7 @@ export default function ProductPage() {
                 {param.row.productName}
               </Text>
             </FullNameWrapper>
-          )
+          );
         },
         flex: 1,
       },
@@ -126,9 +127,77 @@ export default function ProductPage() {
         flex: 1,
       },
       {
+        field: "createdDate",
+        headerName: "Created Date",
+        renderCell: renderGrayText,
+        headerClassName: "super-app-theme--header",
+        headerAlign: "center",
+        align: "center",
+        flex: 1,
+      },
+      {
+        field: "edit",
+        headerName: "Edit",
+        renderCell: (param) => {
+          return (
+            <IconButton
+              aria-label="edit"
+              onClick={(e) => {
+                e.stopPropagation();
+                setAction("edit")
+                setProduct({
+                  id: param.row.id,
+                  productName: param.row.productName,
+                  productDetail: param.row.productDetail,
+                  quantity: param.row.quantity,
+                  wordingOrder: param.row.wordingOrder,
+                  price: param.row.price,
+                  imgURL : param.row.imgURL,
+                  available: param.row.available,
+                  facebookId: param.row.facebookId,
+                  createdDate : param.row.createdDate,
+                })
+                setAddProductVisible(true);
+              }}
+            >
+              <EditIcon style={{ color: "#6c6c6c" }} />
+            </IconButton>
+          );
+        },
+        headerClassName: "super-app-theme--header",
+        headerAlign: "center",
+        align: "center",
+        width: 80,
+      },
+      {
+        field: "delete",
+        headerName: "Delete",
+        headerClassName: "super-app-theme--header",
+        headerAlign: "center",
+        align: "center",
+        width: 80,
+        renderCell: function renderDelete(param) {
+          return (
+            <>
+              <IconButton
+                aria-label="delete"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(param.row.id)
+                }}
+              >
+                <DeleteIcon style={{ color: "#6c6c6c" }} />
+              </IconButton>
+            </>
+          );
+        },
+      },
+      {
         field: "available",
         headerName: "Available",
-        renderCell: renderGrayText,
+        renderCell: function renderStatus(param) {
+          return <Dot available={param.row.available} />;
+        },
         headerClassName: "super-app-theme--header",
         headerAlign: "center",
         align: "center",
@@ -141,13 +210,62 @@ export default function ProductPage() {
     setSnackbarVisible(false);
   };
 
+
+  const handleDelete = (productId) => {
+    Swal.fire({
+      title: `<span style="color: #F65129;"><i class="fas fa-question-circle"></i></span> <span class="ml-10">Are you sure?</span>`,
+      text: `You will delete product`,
+      allowOutsideClick: false,
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      cancelButtonText: 'Cancel',
+      allowEscapeKey: false,
+      allowEnterKey: false,
+      reverseButtons: true,
+      customClass: {
+          confirmButton: 'popup-confirm-green-button',
+          cancelButton: 'popup-cancel-button',
+      },
+  }).then(async (result) => {
+      if (result.isConfirmed) {
+          try {
+            const userRef = query(collection(firestore, "Products"), where("id", "==",productId));
+            const findUsers = await getDocs(userRef);
+            findUsers.forEach( async (user) => {
+              const getUser = doc(firestore, "Products", user.id);
+              await deleteDoc(getUser);
+              Swal.fire({
+                allowOutsideClick: false,
+                icon: 'success',
+                title: 'Success',
+                text: `Product has been deleted`,
+                customClass: {
+                    confirmButton: 'popup-confirm-button',
+                },
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetchProduct( )
+                }
+            })
+             });
+          } catch (error: any) {
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Oops...',
+                  text: error.response.data.message,
+              })
+          }
+      }
+  })
+  }
+
   const fetchProduct = async () => {
     try {
       const querySnapshot = await getDocs(collection(firestore, "Products"));
-      setProductDisplay([])
-        querySnapshot.forEach((doc) => {
-           setProductDisplay(productDisplay => [...productDisplay ,doc.data()])
-        })
+      setProductDisplay([]);
+      querySnapshot.forEach((doc) => {  
+        setProductDisplay((productDisplay) => [...productDisplay, doc.data()]);
+      });
     } catch (error: any) {
       setErrorMsg(error.response.data.message);
       setSnackbarVisible(true);
@@ -170,6 +288,8 @@ export default function ProductPage() {
           aria-label="delete"
           onClick={(e) => {
             e.stopPropagation();
+            setAction("add")
+            setProduct(undefined);
             setAddProductVisible(true);
           }}
         >
@@ -213,7 +333,9 @@ export default function ProductPage() {
       </Snackbar>
       {addProductVisible && (
         <AddProductModal
-         onSuccess={() => fetchProduct()}
+          productPayload={product}
+          action={action}
+          onSuccess={() => fetchProduct()}
           onClose={() => setAddProductVisible(false)}
         ></AddProductModal>
       )}
