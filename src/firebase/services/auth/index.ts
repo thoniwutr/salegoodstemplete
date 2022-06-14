@@ -18,6 +18,11 @@ export function loginUser(email: string, password: string) {
 
 export function loginWithFacebook() {
   const provider = new FacebookAuthProvider()
+  provider.addScope('business_management');
+  provider.addScope('public_profile');
+  provider.addScope('email');
+  provider.addScope('ads_read');
+  provider.addScope('ads_management');
   return signInWithPopup(auth, provider)
 }
 

@@ -24,6 +24,18 @@ const Wrapper = styled.div`
   padding: 0px 50px 50px 0px;
 `;
 
+
+const TitleWrapper = styled.div`
+  padding: 20px 0 0 0;
+  background-color: white;
+  width: 100%;
+  align-items: center;
+  vertical-align: middle;
+  text-align: center;
+  display: flex;
+`;
+
+
 const FullNameWrapper = styled.div`
   display: flex;
   justify-content: center;
@@ -43,16 +55,6 @@ const DataGridWrapper = styled.div`
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 5px 25px 0 rgba(0, 0, 0, 0.1);
-`;
-
-const TitleWrapper = styled.div`
-  padding: 20px 0 0 0;
-  background-color: white;
-  width: 100%;
-  align-items: center;
-  vertical-align: middle;
-  text-align: center;
-  display: flex;
 `;
 
 export default function ProductPage() {
