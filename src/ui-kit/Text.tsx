@@ -39,7 +39,7 @@ export function renderGrayText(props) {
   return (
     <Text
       color="#6c6c6c"
-      size={1}
+      size={0.8}
       weight={600}
       family="Assistant"
       marginLeft={6}
