@@ -15,6 +15,7 @@ import Text from "../../ui-kit/Text";
 import InfoItem from "../../ui-kit/InfoItem";
 import Input from "../../ui-kit/Input";
 import { BlueButton } from "../../ui-kit/Button";
+
 import LoadingButton from "@mui/lab/LoadingButton";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
@@ -59,41 +60,83 @@ export default function AddProductModal(props: Props) {
   const { currentUser, logout} = useAuth()
   
 
-  const handleAddProduct = async (value: {
-    id: string;
-    productName: string;
-    productDetail: string;
-    quantity: number;
-    wordingOrder: string;
-    price: number;
-    imgURL: string;
-    available: 'available' | 'unavailable';
-    facebookId: string;
-    createdDate: string;
-  }) => {
-    console.log(value);
- 
-    try {
-      if(props.action === 'add'){
-        const docRef = await addDoc(collection(firestore, "Products"), value);
+  const validationSchema = Yup.object().shape({
+    id: Yup.string().required(),
+    productName: Yup.string().required(),
+    productDetail: Yup.string().required(),
+    quantity: Yup.number().required(),
+    wordingOrder: Yup.string().required(),
+    price: Yup.number().required(),
+    imgURL: Yup.string(),
+    available: Yup.string().required(),
+    facebookId: Yup.string().required(),
+    createdDate: Yup.string().required(),
+})
+
+const handleAddProduct = async (value: {
+  id: string;
+  productName: string;
+  productDetail: string;
+  quantity: number;
+  wordingOrder: string;
+  price: number;
+  imgURL: string;
+  available: 'available' | 'unavailable';
+  facebookId: string;
+  createdDate: string;
+}) => {
+  console.log(value);
+
+  try {
+    if(props.action === 'add'){
+      const docRef = await addDoc(collection(firestore, "Products"), value);
+      props.onSuccess()
+    }else if(props.action === 'edit'){
+      const userRef = query(collection(firestore, "Products"), where("id", "==", props?.productPayload?.id!!));
+      const findUsers = await getDocs(userRef);
+      findUsers.forEach( async (user) => {
+        const getUser = doc(firestore, "Products", user.id);
+        await updateDoc(getUser, value);
         props.onSuccess()
-      }else if(props.action === 'edit'){
-        const userRef = query(collection(firestore, "Products"), where("id", "==", props?.productPayload?.id!!));
-        const findUsers = await getDocs(userRef);
-        findUsers.forEach( async (user) => {
-          const getUser = doc(firestore, "Products", user.id);
-          await updateDoc(getUser, value);
-          props.onSuccess()
-         });
+       });
 
-      }
-    } catch (e) {
-      console.error("Error adding document: ", e);
-    } finally {
-      props.onClose()
     }
+  } catch (e) {
+    console.error("Error adding document: ", e);
+  } finally {
+    props.onClose()
+  }
 
-  };
+};
+
+
+  const { values, setFieldValue, handleSubmit, errors, handleChange } =
+    useFormik<ProductPayload>({
+      initialValues: {
+        id: props.productPayload ? props.productPayload.id : uuidv4(),
+        productName: props.productPayload ? props.productPayload.productName : '',
+        productDetail: props.productPayload ? props.productPayload.productDetail : '',
+        quantity: props.productPayload ? props.productPayload.quantity : 0,
+        wordingOrder: props.productPayload ? props.productPayload.wordingOrder : '',
+        price: props.productPayload ? props.productPayload.price : 0,
+        imgURL: props.productPayload ? props.productPayload.imgURL : '',
+        available: props.productPayload ? props.productPayload.available : 'unavailable',
+        facebookId: props.productPayload ? props.productPayload.facebookId : currentUser?.providerData[0].uid!!,
+        createdDate: props.productPayload ? props.productPayload.createdDate :  new Date().toLocaleString(),
+      },
+      validationSchema: validationSchema,
+      onSubmit: handleAddProduct,
+      validateOnBlur: false,
+      validateOnChange: false,
+    });
+
+    const setFieldValueTypeSafe = React.useCallback(
+      (fieldName: keyof ProductPayload, value: any) => {
+          setFieldValue(fieldName, value)
+      },
+      [setFieldValue]
+  )
+
 
   const handleUploadImage = (e) => {
     console.log(e.target.file);
@@ -127,48 +170,6 @@ export default function AddProductModal(props: Props) {
     );
   };
 
- 
-
-  const validationSchema = Yup.object().shape({
-    id: Yup.string().required(),
-    productName: Yup.string().required(),
-    productDetail: Yup.string().required(),
-    quantity: Yup.number().required(),
-    wordingOrder: Yup.string().required(),
-    price: Yup.number().required(),
-    imgURL: Yup.string(),
-    available: Yup.string().required(),
-    facebookId: Yup.string().required(),
-    createdDate: Yup.string().required(),
-})
-
-
-  const { values, setFieldValue, handleSubmit, errors, handleChange } =
-    useFormik<ProductPayload>({
-      initialValues: {
-        id: props.productPayload ? props.productPayload.id : uuidv4(),
-        productName: props.productPayload ? props.productPayload.productName : '',
-        productDetail: props.productPayload ? props.productPayload.productDetail : '',
-        quantity: props.productPayload ? props.productPayload.quantity : 0,
-        wordingOrder: props.productPayload ? props.productPayload.wordingOrder : '',
-        price: props.productPayload ? props.productPayload.price : 0,
-        imgURL: props.productPayload ? props.productPayload.imgURL : '',
-        available: props.productPayload ? props.productPayload.available : 'unavailable',
-        facebookId: props.productPayload ? props.productPayload.facebookId : currentUser?.providerData[0].uid!!,
-        createdDate: props.productPayload ? props.productPayload.createdDate :  new Date().toLocaleString(),
-      },
-      validationSchema: validationSchema,
-      onSubmit: handleAddProduct,
-      validateOnBlur: false,
-      validateOnChange: false,
-    });
-
-    const setFieldValueTypeSafe = React.useCallback(
-      (fieldName: keyof ProductPayload, value: any) => {
-          setFieldValue(fieldName, value)
-      },
-      [setFieldValue]
-  )
 
   return (
     <RemoveScroll >

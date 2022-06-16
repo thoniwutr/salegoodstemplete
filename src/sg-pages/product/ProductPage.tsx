@@ -68,6 +68,69 @@ export default function ProductPage() {
   const [addProductVisible, setAddProductVisible] = React.useState(false);
 
 
+  const fetchProduct = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(firestore, "Products"));
+      setProductDisplay([]);
+      querySnapshot.forEach((doc) => {  
+        setProductDisplay((productDisplay) => [...productDisplay, doc.data()]);
+      });
+    } catch (error: any) {
+      setErrorMsg(error.response.data.message);
+      setSnackbarVisible(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const handleDelete = (productId) => {
+    Swal.fire({
+      title: `<span style="color: #F65129;"><i class="fas fa-question-circle"></i></span> <span class="ml-10">Are you sure?</span>`,
+      text: `You will delete product`,
+      allowOutsideClick: false,
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      cancelButtonText: 'Cancel',
+      allowEscapeKey: false,
+      allowEnterKey: false,
+      reverseButtons: true,
+      customClass: {
+          confirmButton: 'popup-confirm-green-button',
+          cancelButton: 'popup-cancel-button',
+      },
+  }).then(async (result) => {
+      if (result.isConfirmed) {
+          try {
+            const userRef = query(collection(firestore, "Products"), where("id", "==",productId));
+            const findUsers = await getDocs(userRef);
+            findUsers.forEach( async (user) => {
+              const getUser = doc(firestore, "Products", user.id);
+              await deleteDoc(getUser);
+              Swal.fire({
+                allowOutsideClick: false,
+                icon: 'success',
+                title: 'Success',
+                text: `Product has been deleted`,
+                customClass: {
+                    confirmButton: 'popup-confirm-button',
+                },
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetchProduct( )
+                }
+            })
+             });
+          } catch (error: any) {
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Oops...',
+                  text: error.response.data.message,
+              })
+          }
+      }
+  })
+  }
+
   function productColumn(): GridColDef[] {
     return [
       {
@@ -212,69 +275,6 @@ export default function ProductPage() {
     setSnackbarVisible(false);
   };
 
-
-  const handleDelete = (productId) => {
-    Swal.fire({
-      title: `<span style="color: #F65129;"><i class="fas fa-question-circle"></i></span> <span class="ml-10">Are you sure?</span>`,
-      text: `You will delete product`,
-      allowOutsideClick: false,
-      showCancelButton: true,
-      confirmButtonText: 'Delete',
-      cancelButtonText: 'Cancel',
-      allowEscapeKey: false,
-      allowEnterKey: false,
-      reverseButtons: true,
-      customClass: {
-          confirmButton: 'popup-confirm-green-button',
-          cancelButton: 'popup-cancel-button',
-      },
-  }).then(async (result) => {
-      if (result.isConfirmed) {
-          try {
-            const userRef = query(collection(firestore, "Products"), where("id", "==",productId));
-            const findUsers = await getDocs(userRef);
-            findUsers.forEach( async (user) => {
-              const getUser = doc(firestore, "Products", user.id);
-              await deleteDoc(getUser);
-              Swal.fire({
-                allowOutsideClick: false,
-                icon: 'success',
-                title: 'Success',
-                text: `Product has been deleted`,
-                customClass: {
-                    confirmButton: 'popup-confirm-button',
-                },
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetchProduct( )
-                }
-            })
-             });
-          } catch (error: any) {
-              Swal.fire({
-                  icon: 'error',
-                  title: 'Oops...',
-                  text: error.response.data.message,
-              })
-          }
-      }
-  })
-  }
-
-  const fetchProduct = async () => {
-    try {
-      const querySnapshot = await getDocs(collection(firestore, "Products"));
-      setProductDisplay([]);
-      querySnapshot.forEach((doc) => {  
-        setProductDisplay((productDisplay) => [...productDisplay, doc.data()]);
-      });
-    } catch (error: any) {
-      setErrorMsg(error.response.data.message);
-      setSnackbarVisible(true);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   React.useEffect(() => {
     fetchProduct();
