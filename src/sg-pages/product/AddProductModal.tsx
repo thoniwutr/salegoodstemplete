@@ -23,7 +23,6 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 
 
 import { RemoveScroll } from "react-remove-scroll";
-import Swal from "sweetalert2";
 
 import { v4 as uuidv4 } from 'uuid';
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
