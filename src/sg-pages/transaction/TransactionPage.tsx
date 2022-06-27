@@ -68,12 +68,26 @@ const LeadingWrapper = styled.div`
     cursor: pointer;
   }
 `
+const TableWrapper = styled.div`
+  gap: 30px;
+  display: flex;
+`;
 
-const DataGridWrapper = styled.div`
+
+const DataGridTransactionWrapper = styled.div`
+  width: 70%;
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 5px 25px 0 rgba(0, 0, 0, 0.1);
 `;
+
+const DataGridProductWrapper = styled.div`
+  width: 30%;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 5px 25px 0 rgba(0, 0, 0, 0.1);
+`;
+
 
 function txnColumn(): GridColDef[] {
   return [
@@ -159,9 +173,51 @@ function txnColumn(): GridColDef[] {
   ];
 }
 
+function productColumn(): GridColDef[] {
+  return [
+    {
+      field: "productName",
+      headerName: "Product Name",
+      renderCell: renderGrayText,
+      headerClassName: "super-app-theme--header",
+      headerAlign: "center",
+      align: "center",
+      flex: 1,
+    },
+    {
+      field: "wordingOrder",
+      headerName: "wording",
+      renderCell: renderGrayText,
+      headerClassName: "super-app-theme--header",
+      headerAlign: "center",
+      align: "center",
+      flex: 1,
+    },
+    {
+      field: "price",
+      headerName: "Price",
+      renderCell: renderGrayText,
+      headerClassName: "super-app-theme--header",
+      headerAlign: "center",
+      align: "center",
+      flex: 1,
+    },
+    {
+      field: "quantity",
+      headerName: "Quantity",
+      headerClassName: "super-app-theme--header",
+      headerAlign: "center",
+      renderCell: renderGrayText,
+      align: "center",
+      flex: 1,
+    },
+  ];
+}
+
 export default function TransactionPage() {
   const navigate = useNavigate();
   const [transactionDisplay, setTransactionDisplay] = React.useState<any[]>([]);
+  const [productDisplay, setProductDisplay] = React.useState<any[]>([]);
 
   const [loading, setLoading] = React.useState(true);
   const [snackbarVisible, setSnackbarVisible] = React.useState(false);
@@ -218,16 +274,25 @@ export default function TransactionPage() {
   })
   }
 
-
-
-  const fetchTransactionByPostId = async (postId) => {  
-    const q = query(collection(firestore, "Transactions"), where("transactionDetail.postId", "==", postId));
-    const querySnapshot = await getDocs(q);
-    const txnList = querySnapshot.docs.map((doc) => doc.data());
-    setTransactionDisplay(txnList)
-    setIsConfirmOrder(txnList[0].txnStatus !== "completed")
+   
+  const fetchTransactionRealtime = async (postId) => {  
+    const q = query(collection(firestore, "Transactions"),where("transactionDetail.postId", "==", postId));
+    onSnapshot(q, (querySnapshot) => {
+      const txnList = querySnapshot.docs.map((doc) => doc.data());
+      setTransactionDisplay(txnList)
+      setIsConfirmOrder(txnList[0].txnStatus !== "completed")
+    })
   }
- 
+
+
+  const fetchProduct = async () => {  
+    const q = query(collection(firestore, "Products"), where("available", "==", "available"));
+    onSnapshot(q, (querySnapshot) => {
+      const productList = querySnapshot.docs.map((doc) => doc.data());
+      setProductDisplay(productList)
+    })
+  }
+  
 
   const fetchTransaction = async () => {
 
@@ -265,7 +330,7 @@ export default function TransactionPage() {
       console.log(optionsList)
       const sortedOptions = optionsList.sort((a, b) => b.label - a.label)
       setOptions(sortedOptions)
-     setPostIdSelected(sortedOptions[0])
+      setPostIdSelected(sortedOptions[0])
       //Set First List
       const firstTxn =  txnList.filter( x => 
         x.transactionDetail.postId === sortedOptions[0].value
@@ -283,12 +348,13 @@ export default function TransactionPage() {
 
   React.useEffect(() => {
    if(postIdSelected !== null){
-    fetchTransactionByPostId(postIdSelected.value)
+    fetchTransactionRealtime(postIdSelected.value)
    }
     console.log(postIdSelected)
   }, [postIdSelected]);
 
   React.useEffect(() => {
+    fetchProduct()
     fetchTransaction();
   }, []);
 
@@ -311,12 +377,13 @@ export default function TransactionPage() {
         </TailingWrapper>
       
         <LeadingWrapper>
-        {isConfirmOrder && (<BlueButton onClick={handleCreateOrder} width="200" margin="0">
+      <BlueButton onClick={handleCreateOrder} width="200" margin="0">
           Confirm Order
-        </BlueButton>)}
+        </BlueButton>
         </LeadingWrapper>
       </TitleWrapper>
-      <DataGridWrapper>
+      <TableWrapper>
+      <DataGridTransactionWrapper>
         <Box
           sx={{
             "& .super-app-theme--header": {
@@ -337,7 +404,31 @@ export default function TransactionPage() {
             disableSelectionOnClick
           />
         </Box>
-      </DataGridWrapper>
+      </DataGridTransactionWrapper>
+      <DataGridProductWrapper>
+        <Box
+          sx={{
+            "& .super-app-theme--header": {
+              backgroundColor: "#ededed",
+              color: "#6c6c6c",
+              fontSize: "0.8rem",
+            },
+          }}
+        >
+          <DataGrid
+            autoHeight
+            pageSize={pageSize}
+            onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
+            rowsPerPageOptions={[pageSize, 50, 100]}
+            loading={loading}
+            rows={productDisplay}
+            columns={productColumn()}
+            disableSelectionOnClick
+          />
+        </Box>
+      </DataGridProductWrapper>
+      </TableWrapper>
+  
       <Snackbar
         open={snackbarVisible}
         onClose={handleCloseSnackBar}
