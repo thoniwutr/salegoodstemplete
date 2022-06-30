@@ -322,13 +322,13 @@ export default function TransactionPage() {
         const temp =  txnList.filter( x => 
           x.transactionDetail.postId === postId
         )
-        optionsList.push({value:postId, label:temp[0].createdDate})
+        optionsList.push({value:postId,label:temp[0].createdDate})
         console.log(temp)
         console.log("============")
       })
      
       console.log(optionsList)
-      const sortedOptions = optionsList.sort((a, b) => b.label - a.label)
+      const sortedOptions = optionsList.sort((a, b) => new Date(b.label).getTime() - new Date(a.label).getTime())
       setOptions(sortedOptions)
       setPostIdSelected(sortedOptions[0])
       //Set First List
