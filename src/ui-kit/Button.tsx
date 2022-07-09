@@ -133,3 +133,30 @@ export const BlueButton = styled.button<{ width: string; margin: string }>`
     color: #a1a1a1;
   }
 `
+
+export const OrderStatusButton = styled.button<{ width: string; margin: string }>`
+  width: ${(props) => props.width}px;
+  margin: ${(props) => props.margin};
+  height: 40px;
+  font-family: 'Assistant';
+  font-size: 16px;
+  font-weight: 600;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.31;
+  letter-spacing: normal;
+  text-align: center;
+  border-radius: 4px;
+  cursor: pointer;
+  color: black;
+  &:hover {
+    background-color: rgb(0, 29, 160);
+    border: 2px solid rgb(0, 29, 160);
+    color: #ffffff;
+  }
+  &:disabled {
+    border: 1px solid #acacac;
+    background-color: #e4e4e4;
+    color: #a1a1a1;
+  }
+`

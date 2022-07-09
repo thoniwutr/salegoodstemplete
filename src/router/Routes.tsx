@@ -10,6 +10,7 @@ import MenuLayout from '../ui-kit/MenuLayout'
 import FacebookLoginPage from '../auth/FacebookLoginPage'
 import ProductPage from "../sg-pages/product/ProductPage";
 import OrderPage from "../sg-pages/order/OrderPage";
+import OrderDetail from "../sg-pages/order/OrderDetail"
 import HistoryPage from "../sg-pages/history/HistoryPage";
 import TransactionPage from "../sg-pages/transaction/TransactionPage";
 
@@ -30,6 +31,10 @@ export default function Routes() {
           <Route path="/" element={<div></div>} />
           <Route path="/product" element={<ProductPage/>} />
           <Route path="/order" element={<OrderPage />} />
+          <Route
+                path="/order/:orderId"
+                element={<OrderDetail />}
+              />
           <Route path="/transaction" element={<TransactionPage/>} />
           <Route path="/history" element={<HistoryPage />} />
         </Route>

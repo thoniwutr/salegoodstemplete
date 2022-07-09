@@ -18,6 +18,8 @@ import {
 } from "firebase/firestore";
 import { firestore } from "../../firebase/firebase-config";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import EditOrderStatusModal from "./EditOrderStatusModal";
+import { OrderStatusButton } from "../../ui-kit/Button";
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -55,11 +57,17 @@ const DataGridWrapper = styled.div`
 `;
 
 export default function OrderPage() {
+  const navigate = useNavigate();
   const [orderDisplay, setOrderDisplay] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [snackbarVisible, setSnackbarVisible] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState("");
   const [pageSize, setPageSize] = React.useState(30);
+  const [orderStatusVisible, setOrderStatusVisible] = React.useState(false);
+
+  const [orderId, setOrderId] = React.useState("");
+  const [currentOrderStatus, setCurrentOrderStatus] = React.useState("");
+
 
   const fetchTransactionByPostId = async () => {
     try {
@@ -78,6 +86,10 @@ export default function OrderPage() {
   React.useEffect(() => {
     fetchTransactionByPostId();
   }, []);
+
+  React.useEffect(() => {
+    console.log(orderDisplay)
+  }, [orderDisplay]);
 
   const handleCloseSnackBar = () => {
     setSnackbarVisible(false);
@@ -152,17 +164,26 @@ export default function OrderPage() {
       },
       {
         field: "orderStatus",
-        headerName: "Created Date",
+        headerName: "Order Status",
         headerClassName: "super-app-theme--header",
-        valueGetter: function (params) {
-          return params.row.orderData.orderStatus;
-        },
+        renderCell: (data) => {
+          return <OrderStatusButton type="submit" width="100%" margin="10" onClick={(e)=> {
+            e.stopPropagation()
+            setCurrentOrderStatus(data.row.orderData.orderStatus)
+            setOrderId(data.row.id)
+            setOrderStatusVisible(true)
+          }}>{data.row.orderData.orderStatus}</OrderStatusButton>
+      },
         headerAlign: "center",
-        renderCell: renderGrayText,
         align: "center",
         flex: 1,
       },
     ];
+  }
+
+
+  const handleCellClick = (e: any) => {
+    navigate(`/order/${e.id}`)
   }
 
   return (
@@ -192,7 +213,7 @@ export default function OrderPage() {
             loading={loading}
             rows={orderDisplay}
             columns={txnColumn()}
-            disableSelectionOnClick
+            onCellClick={handleCellClick}
           />
         </Box>
       </DataGridWrapper>
@@ -209,6 +230,14 @@ export default function OrderPage() {
           {errorMsg}
         </Alert>
       </Snackbar>
+      {orderStatusVisible && (
+        <EditOrderStatusModal
+          orderId={orderId}
+          orderStatusParam={currentOrderStatus}
+          onSuccess={() => fetchTransactionByPostId()}
+          onClose={() => setOrderStatusVisible(false)}
+        ></EditOrderStatusModal>
+      )}
     </Wrapper>
   );
 }
