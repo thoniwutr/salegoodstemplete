@@ -12,10 +12,12 @@ type Props = {
 }
 
 const Wrapper = styled.div`
+  padding: 20px 0 0 0;
+  background-color: white;
   width: 100%;
-  margin-top: 10px;
+  justify-content: space-between;
+  vertical-align: middle;
   display: flex;
-  margin-top: 15px;
 `
 
 

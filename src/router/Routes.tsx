@@ -13,6 +13,7 @@ import OrderPage from "../sg-pages/order/OrderPage";
 import OrderDetail from "../sg-pages/order/OrderDetail"
 import HistoryPage from "../sg-pages/history/HistoryPage";
 import TransactionPage from "../sg-pages/transaction/TransactionPage";
+import UserManagementPage from "../sg-pages/usermanagement/UserManagementPage";
 
 import { ThemeProvider } from "@emotion/react";
 import { theme } from "../theme";
@@ -37,6 +38,7 @@ export default function Routes() {
               />
           <Route path="/transaction" element={<TransactionPage/>} />
           <Route path="/history" element={<HistoryPage />} />
+          <Route path="/user-management" element={<UserManagementPage/>} />
         </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </RoutesWrapper>

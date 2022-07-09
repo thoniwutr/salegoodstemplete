@@ -84,7 +84,6 @@ const handleAddProduct = async (value: {
   facebookId: string;
   createdDate: string;
 }) => {
-  console.log(value);
 
   try {
     if(props.action === 'add'){
