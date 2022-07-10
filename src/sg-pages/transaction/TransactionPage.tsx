@@ -336,7 +336,7 @@ export default function TransactionPage() {
         x.transactionDetail.postId === sortedOptions[0].value
       )
       setTransactionDisplay(firstTxn);
-
+      setIsConfirmOrder(firstTxn[0].txnStatus !== "completed")
     } catch (error: any) {
       setErrorMsg(error.response.data.message);
       setSnackbarVisible(true);
@@ -358,6 +358,8 @@ export default function TransactionPage() {
     fetchTransaction();
   }, []);
 
+
+
   return (
     <Wrapper>
       <TitleWrapper>
@@ -377,9 +379,9 @@ export default function TransactionPage() {
         </TailingWrapper>
       
         <LeadingWrapper>
-      <BlueButton onClick={handleCreateOrder} width="200" margin="0">
+       {isConfirmOrder && (<BlueButton onClick={handleCreateOrder} width="200" margin="0">
           Confirm Order
-        </BlueButton>
+        </BlueButton>)}
         </LeadingWrapper>
       </TitleWrapper>
       <TableWrapper>
