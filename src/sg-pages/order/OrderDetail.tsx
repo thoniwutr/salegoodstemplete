@@ -16,6 +16,7 @@ import {
 import InfoItemVertical from "../../ui-kit/InfoItemVertical";
 
 import { Snackbar, Alert, Stack, Divider, Box } from "@mui/material";
+import { useAuth } from '../../sg-context/AuthContext'
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -114,10 +115,12 @@ export default function OrderDetail() {
     React.useState<any[]>([]);
     const [amountPrice, setAmountPrice] =
     React.useState(0);
+    const [deliveryPrice, setDeliveryPrice] = React.useState(0);
   const [snackbarVisible, setSnackbarVisible] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState("");
   const [loading, setLoading] = React.useState(true);
-  
+  const { currentUser} = useAuth()
+
   const fetchProductDetail = async (listOfId,productDetail) => {
     try {
         console.log(listOfId)
@@ -171,9 +174,24 @@ export default function OrderDetail() {
     }
   };
 
+  const fetchUserManagement = async () => {
+    try {
+      const q = query(collection(firestore, "UserManagement"),where("id", "==", currentUser?.uid));
+      const querySnapshot = await getDocs(q);
+      const orderList = querySnapshot.docs.map((doc) => doc.data());
+      setDeliveryPrice(orderList[0].deliveryPrice);
+    } catch (error: any) {
+      setErrorMsg(error.message);
+      setSnackbarVisible(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   React.useEffect(() => {
     fetchOrderDetail();
+    fetchUserManagement();
   }, []);
 
 
@@ -344,7 +362,7 @@ export default function OrderDetail() {
                 title="Amount"
                 detail={
                   <Text family="Assistant" size={1.1} color="#000">
-                    {amountPrice} THB
+                    {amountPrice}(Product Amount) + {deliveryPrice}(Delivery Price)  = {amountPrice+Number(deliveryPrice)} THB
                   </Text>
                 }
               />

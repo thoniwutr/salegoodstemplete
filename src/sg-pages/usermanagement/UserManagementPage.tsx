@@ -163,22 +163,6 @@ const handleUpdateUserResponse = async () => {
           <ContentMainWrapper>
             <Stack>
               <InfoItemVertical
-                title="User ID"
-                detail={
-                  <Text family="Assistant" size={1.1} color="#000">
-                        {currentUser?.uid}
-                  </Text>
-                }
-              />
-              <InfoItemVertical
-                title="Facebook ID"
-                detail={
-                  <Text family="Assistant" size={1.1} color="#000">
-                            {currentUser?.providerData[0].uid}
-                  </Text>
-                }
-              />
-              <InfoItemVertical
                 title="Delivery Price"
                 detail={
                     <Input

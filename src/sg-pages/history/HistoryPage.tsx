@@ -18,6 +18,7 @@ import {
 } from "firebase/firestore";
 import { firestore } from "../../firebase/firebase-config";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { useAuth } from '../../sg-context/AuthContext'
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -56,11 +57,13 @@ const DataGridWrapper = styled.div`
 
 export default function HistoryPage() {
   const navigate = useNavigate();
+  const { currentUser} = useAuth()
   const [orderDisplay, setOrderDisplay] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [snackbarVisible, setSnackbarVisible] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState("");
   const [pageSize, setPageSize] = React.useState(30);
+  const [deliveryPrice, setDeliveryPrice] = React.useState(0);
 
   const fetchTransactionByPostId = async () => {
     try {
@@ -76,7 +79,22 @@ export default function HistoryPage() {
     }
   };
 
+  const fetchUserManagement = async () => {
+    try {
+      const q = query(collection(firestore, "UserManagement"),where("id", "==", currentUser?.uid));
+      const querySnapshot = await getDocs(q);
+      const orderList = querySnapshot.docs.map((doc) => doc.data());
+      setDeliveryPrice(orderList[0].deliveryPrice);
+    } catch (error: any) {
+      setErrorMsg(error.message);
+      setSnackbarVisible(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   React.useEffect(() => {
+    fetchUserManagement();
     fetchTransactionByPostId();
   }, []);
 
@@ -148,7 +166,8 @@ export default function HistoryPage() {
             amount += data.price
           })
 
-          return amount;
+        
+          return amount + Number(deliveryPrice);
         },
         headerAlign: "center",
         renderCell: renderGrayText,
