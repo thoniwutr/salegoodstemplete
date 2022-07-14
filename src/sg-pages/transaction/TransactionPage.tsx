@@ -214,10 +214,60 @@ function productColumn(): GridColDef[] {
   ];
 }
 
+function askAdminColumn(): GridColDef[] {
+  return [
+    {
+      field: "id",
+      headerName: "Ask ID",
+      renderCell: renderGrayText,
+      headerClassName: "super-app-theme--header",
+      headerAlign: "center",
+      align: "center",
+      flex: 1,
+    },
+    {
+      field: "username",
+      headerName: "Customer Name",
+      renderCell: renderGrayText,
+      headerClassName: "super-app-theme--header",
+      headerAlign: "center",
+      align: "center",
+      flex: 1,
+    },
+    {
+      field: "message",
+      headerName: "Message",
+      renderCell: renderGrayText,
+      headerClassName: "super-app-theme--header",
+      headerAlign: "center",
+      align: "center",
+      flex: 1,
+    },
+    {
+      field: "createdDate",
+      headerName: "Created Date",
+      headerClassName: "super-app-theme--header",
+      headerAlign: "center",
+      renderCell: function renderDateTime(props) {
+        return (
+          <DatetimeText
+            datetime={props.value}
+            outputFormat="dd MMM yyyy , HH:mm"
+          />
+        );
+      },
+      align: "center",
+      flex: 1,
+    },
+  ];
+}
+
+
 export default function TransactionPage() {
   const navigate = useNavigate();
   const [transactionDisplay, setTransactionDisplay] = React.useState<any[]>([]);
   const [productDisplay, setProductDisplay] = React.useState<any[]>([]);
+  const [askAdminDisplay, setAskAdminDisplay] = React.useState<any[]>([]);
 
   const [loading, setLoading] = React.useState(true);
   const [snackbarVisible, setSnackbarVisible] = React.useState(false);
@@ -294,6 +344,16 @@ export default function TransactionPage() {
   }
   
 
+  
+  const fetchAskAdminRealTime = async (postId) => {  
+    const q = query(collection(firestore, "AskAdmin"), where("postId", "==", postId));
+    onSnapshot(q, (querySnapshot) => {
+      const askAdminList = querySnapshot.docs.map((doc) => doc.data());
+      setAskAdminDisplay(askAdminList)
+    })
+  }
+  
+
   const fetchTransaction = async () => {
 
     try {
@@ -349,6 +409,7 @@ export default function TransactionPage() {
   React.useEffect(() => {
    if(postIdSelected !== null){
     fetchTransactionRealtime(postIdSelected.value)
+    fetchAskAdminRealTime(postIdSelected.value);
    }
     console.log(postIdSelected)
   }, [postIdSelected]);
@@ -429,8 +490,38 @@ export default function TransactionPage() {
           />
         </Box>
       </DataGridProductWrapper>
-      </TableWrapper>
   
+      </TableWrapper>
+      <div>
+      <TitleWrapper>
+        <TailingWrapper>
+        <Text size={1.5} weight={500} family="LexendDeca">
+          Ask Admin
+        </Text>
+        </TailingWrapper>
+      </TitleWrapper>
+      <Box
+          sx={{
+            "& .super-app-theme--header": {
+              backgroundColor: "#ededed",
+              color: "#6c6c6c",
+              fontSize: "0.8rem",
+            },
+          }}
+        >
+          <DataGrid
+            autoHeight
+            pageSize={pageSize}
+            onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
+            rowsPerPageOptions={[pageSize, 50, 100]}
+            loading={loading}
+            rows={askAdminDisplay}
+            columns={askAdminColumn()}
+            disableSelectionOnClick
+          />
+        </Box>
+      </div>
+
       <Snackbar
         open={snackbarVisible}
         onClose={handleCloseSnackBar}

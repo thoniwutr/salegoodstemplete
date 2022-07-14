@@ -119,6 +119,8 @@ const handleUpdateStatus= async () => {
                 onChange={(e) => setNewStatus(e.target.value)}
             >
                 <Dropdown.Item value="waiting for payment" displayName="waiting for payment" />
+                <Dropdown.Item value="packing" displayName="packing" />
+                <Dropdown.Item value="cancel by merchant" displayName="cancel by merchant" />
                 <Dropdown.Item value="success" displayName="success" />
             </Dropdown>
             }
