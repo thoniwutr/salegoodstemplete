@@ -23,6 +23,7 @@ import { BlueButton } from "../../ui-kit/Button";
 import Select from "react-select";
 import Swal from 'sweetalert2'
 
+import { useAuth } from '../../sg-context/AuthContext'
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -276,6 +277,8 @@ export default function TransactionPage() {
   const [postIdSelected, setPostIdSelected] = React.useState<any>(null);
   const [options, setOptions] = React.useState<any>(null);
   const [isConfirmOrder, setIsConfirmOrder] = React.useState(true);
+  const { currentUser} = useAuth()
+
 
   const handleCloseSnackBar = () => {
     setSnackbarVisible(false);
@@ -285,7 +288,8 @@ export default function TransactionPage() {
   const requestToConfirmOrder = async (postId) => {
     try {
       await authenticatedRestClient.post('/create-order', {
-        postId: postId
+        postId: postId,
+        uid: currentUser?.uid
       })
       navigate("/order");
     } catch (error: any) {
@@ -298,7 +302,6 @@ export default function TransactionPage() {
         console.log("Finally")
     }
   }
-
 
 
   const handleCreateOrder = () => {
